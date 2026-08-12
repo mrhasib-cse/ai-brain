@@ -1,0 +1,6 @@
+{
+  "name": "AI Memory Layer",
+  "description": "Cross-platform unified memory foundation for AI assistants like Claude, ChatGPT, and Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
