@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -31,6 +32,13 @@ interface MemoryItem {
 }
 
 export const Landing: React.FC = () => {
+  // TEMP: connection test — remove after verifying
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data, error }) => {
+      console.log('Supabase session test:', { data, error });
+    });
+  }, []);
+
   // Interactive Live Memory Simulator State
   const [memoryInput, setMemoryInput] = useState('My tech stack is React 19, TypeScript, and Tailwind CSS. I prefer dark mode with high contrast serif headlines.');
   const [syncedMemories, setSyncedMemories] = useState<MemoryItem[]>([
