@@ -1,6 +1,6 @@
 import React from 'react';
-import { Brain, Shield, Lock, ExternalLink } from 'lucide-react';
-import { Badge } from '../ui/Badge';
+import { Brain, Lock } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
 
 export const Footer: React.FC = () => {
   return (

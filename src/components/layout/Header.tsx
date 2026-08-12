@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/ui/Button';
 import { Sun, Moon, Brain, Sparkles, ChevronRight, Menu, X } from 'lucide-react';
 
 export interface HeaderProps {
@@ -12,7 +12,6 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onSignInClick
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Sync initial dark class state from documentElement
     const isDarkMode = document.documentElement.classList.contains('dark');
     setIsDark(isDarkMode);
   }, []);
@@ -31,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onSignInClick
     <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-[var(--bg-main)]/80 border-b border-[var(--border)] transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Brand Logo */}
-        <a href="#" className="flex items-center gap-3 group">
+        <a href="/" className="flex items-center gap-3 group">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6C5CE7] to-[#8F82FF] flex items-center justify-center text-white shadow-md shadow-[#6C5CE7]/30 group-hover:scale-105 transition-transform">
             <Brain className="w-5 h-5" />
           </div>

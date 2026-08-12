@@ -1,16 +1,15 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import AppLayout from '../app/layout';
-import LandingPage from '../app/page';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Shell } from '@/components/layout/Shell';
+import { Landing } from '@/pages/Landing';
 
 export default function App() {
   return (
-    <AppLayout>
-      <LandingPage />
-    </AppLayout>
+    <BrowserRouter>
+      <Shell>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+        </Routes>
+      </Shell>
+    </BrowserRouter>
   );
 }
-

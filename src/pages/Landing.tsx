@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
-import { Input } from '../components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 import { 
   Brain, 
   Sparkles, 
@@ -10,7 +9,6 @@ import {
   ShieldCheck, 
   Database, 
   ArrowRight, 
-  CheckCircle2, 
   Search, 
   Layers, 
   Terminal, 
@@ -32,7 +30,7 @@ interface MemoryItem {
   confidence: number;
 }
 
-export const LandingPage: React.FC = () => {
+export const Landing: React.FC = () => {
   // Interactive Live Memory Simulator State
   const [memoryInput, setMemoryInput] = useState('My tech stack is React 19, TypeScript, and Tailwind CSS. I prefer dark mode with high contrast serif headlines.');
   const [syncedMemories, setSyncedMemories] = useState<MemoryItem[]>([
@@ -97,11 +95,8 @@ export const LandingPage: React.FC = () => {
   return (
     <div className="w-full space-y-24 sm:space-y-32 pb-24">
       
-      {/* ------------------------------------------------------------- */}
       {/* HERO SECTION */}
-      {/* ------------------------------------------------------------- */}
       <section className="relative pt-12 sm:pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        {/* Background Subtle Radial Gradient */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[#6C5CE7]/10 blur-[120px] rounded-full pointer-events-none -z-10" />
 
         <div className="text-center space-y-6 max-w-4xl mx-auto">
@@ -125,7 +120,7 @@ export const LandingPage: React.FC = () => {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Button variant="primary" size="lg" className="w-full sm:w-auto">
-              Get Started Free
+              Get Started
               <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
             
@@ -152,7 +147,7 @@ export const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Trust stats & Model logos */}
+          {/* Trust stats */}
           <div className="pt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto border-t border-[var(--border)] text-left">
             <div className="p-3">
               <div className="text-2xl font-serif-display font-bold text-[var(--text-primary)]">100%</div>
@@ -174,9 +169,7 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ------------------------------------------------------------- */}
       {/* INTERACTIVE LIVE MEMORY SIMULATOR DEMO */}
-      {/* ------------------------------------------------------------- */}
       <section id="interactive-demo" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
         <div className="text-center space-y-3 mb-10">
           <Badge color="violet" variant="subtle">Interactive Playground</Badge>
@@ -422,9 +415,7 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ------------------------------------------------------------- */}
       {/* FEATURE CARDS GRID */}
-      {/* ------------------------------------------------------------- */}
       <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <Badge color="indigo" variant="subtle">Core Features</Badge>
@@ -437,8 +428,6 @@ export const LandingPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          
-          {/* Card 1 */}
           <Card hoverGlow className="space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-[#6C5CE7]/15 border border-[#6C5CE7]/30 flex items-center justify-center text-[#8F82FF]">
               <Layers className="w-6 h-6" />
@@ -456,7 +445,6 @@ export const LandingPage: React.FC = () => {
             </div>
           </Card>
 
-          {/* Card 2 */}
           <Card hoverGlow className="space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
               <Lock className="w-6 h-6" />
@@ -473,7 +461,6 @@ export const LandingPage: React.FC = () => {
             </div>
           </Card>
 
-          {/* Card 3 */}
           <Card hoverGlow className="space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300">
               <Brain className="w-6 h-6" />
@@ -490,7 +477,6 @@ export const LandingPage: React.FC = () => {
             </div>
           </Card>
 
-          {/* Card 4 */}
           <Card hoverGlow className="space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
               <Terminal className="w-6 h-6" />
@@ -507,7 +493,6 @@ export const LandingPage: React.FC = () => {
             </div>
           </Card>
 
-          {/* Card 5 */}
           <Card hoverGlow className="space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
               <Sliders className="w-6 h-6" />
@@ -524,7 +509,6 @@ export const LandingPage: React.FC = () => {
             </div>
           </Card>
 
-          {/* Card 6 */}
           <Card hoverGlow className="space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400">
               <MessageSquareCode className="w-6 h-6" />
@@ -540,13 +524,10 @@ export const LandingPage: React.FC = () => {
               <Badge color="emerald">Native Injection</Badge>
             </div>
           </Card>
-
         </div>
       </section>
 
-      {/* ------------------------------------------------------------- */}
       {/* HOW IT WORKS SECTION */}
-      {/* ------------------------------------------------------------- */}
       <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <Badge color="emerald" variant="subtle">3-Step Integration</Badge>
@@ -559,8 +540,6 @@ export const LandingPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-          
-          {/* Step 1 */}
           <Card className="relative space-y-4 border-[var(--border)] bg-[var(--card-bg)]">
             <div className="flex items-center justify-between">
               <span className="font-mono text-3xl font-bold text-[#6C5CE7]">01</span>
@@ -574,7 +553,6 @@ export const LandingPage: React.FC = () => {
             </p>
           </Card>
 
-          {/* Step 2 */}
           <Card className="relative space-y-4 border-[var(--border)] bg-[var(--card-bg)]">
             <div className="flex items-center justify-between">
               <span className="font-mono text-3xl font-bold text-[#6C5CE7]">02</span>
@@ -588,7 +566,6 @@ export const LandingPage: React.FC = () => {
             </p>
           </Card>
 
-          {/* Step 3 */}
           <Card className="relative space-y-4 border-[#6C5CE7]/30 bg-[var(--card-bg)] memory-glow">
             <div className="flex items-center justify-between">
               <span className="font-mono text-3xl font-bold text-[#6C5CE7]">03</span>
@@ -601,13 +578,10 @@ export const LandingPage: React.FC = () => {
               Whenever you prompt Claude, ChatGPT, or Gemini, MemoryLayer automatically attaches relevant memory snippets in real time.
             </p>
           </Card>
-
         </div>
       </section>
 
-      {/* ------------------------------------------------------------- */}
       {/* FINAL CTA BANNER */}
-      {/* ------------------------------------------------------------- */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Card className="bg-gradient-to-br from-[var(--bg-secondary)] via-[var(--card-bg)] to-[var(--bg-secondary)] border-[#6C5CE7]/30 p-10 sm:p-16 text-center space-y-6 memory-glow relative overflow-hidden">
           <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#6C5CE7]/15 rounded-full blur-3xl pointer-events-none" />
@@ -640,4 +614,4 @@ export const LandingPage: React.FC = () => {
   );
 };
 
-export default LandingPage;
+export default Landing;

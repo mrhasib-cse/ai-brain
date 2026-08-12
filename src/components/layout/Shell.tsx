@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { Header } from '../components/layout/Header';
-import { Footer } from '../components/layout/Footer';
-import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
-import { Input } from '../components/ui/Input';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
 import { Brain, X, Sparkles, Check, Key } from 'lucide-react';
 
-export interface LayoutProps {
+export interface ShellProps {
   children: React.ReactNode;
 }
 
-export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
+export const Shell: React.FC<ShellProps> = ({ children }) => {
   const [authModal, setAuthModal] = useState<'signin' | 'getstarted' | null>(null);
   const [emailInput, setEmailInput] = useState('');
   const [modalSuccess, setModalSuccess] = useState(false);
@@ -60,7 +60,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
           <Card className="max-w-md w-full relative border-[#6C5CE7]/30 shadow-2xl bg-[var(--card-bg)] p-8">
             <button
               onClick={() => { setAuthModal(null); setModalSuccess(false); }}
-              className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+              className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -122,7 +122,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
 
                 <p className="text-[11px] text-center text-[var(--text-muted)] pt-2">
-                  No database or auth server connected yet. This is a frontend layout shell preview for AI Memory Layer.
+                  No database or auth server connected yet. This is a layout shell preview for AI Memory Layer.
                 </p>
               </form>
             )}
@@ -132,5 +132,3 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
     </div>
   );
 };
-
-export default AppLayout;
