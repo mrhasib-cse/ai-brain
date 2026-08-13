@@ -91,6 +91,7 @@ export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  res.setHeader('Access-Control-Expose-Headers', 'WWW-Authenticate');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -104,10 +105,18 @@ export default async function handler(req: any, res: any) {
     });
   }
 
+  const proto = req.headers['x-forwarded-proto'] || 'https';
+  const host = req.headers['x-forwarded-host'] || req.headers['host'] || 'localhost:3000';
+  const origin = `${proto}://${host}`;
+
   try {
     let body: JsonRpcRequest = req.body;
     if (typeof body === 'string') {
-      body = JSON.parse(body);
+      try {
+        body = JSON.parse(body);
+      } catch {
+        body = {} as any;
+      }
     }
 
     const { jsonrpc, id = null, method, params } = body || {};
@@ -119,6 +128,25 @@ export default async function handler(req: any, res: any) {
         error: { code: -32600, message: 'Invalid Request: jsonrpc must be "2.0"' },
       });
     }
+
+    // Authenticate request before executing any MCP method (including initialize, tools/list, and tools/call)
+    const keyRow = await authenticate(req);
+    if (!keyRow) {
+      res.setHeader(
+        'WWW-Authenticate',
+        `Bearer resource_metadata="${origin}/.well-known/oauth-protected-resource"`
+      );
+      return res.status(401).json({
+        jsonrpc: '2.0',
+        id,
+        error: {
+          code: -32001,
+          message: 'Unauthorized: missing, invalid, or revoked API key',
+        },
+      });
+    }
+
+    const userId = keyRow.user_id;
 
     // Handle MCP ping
     if (method === 'ping') {
@@ -264,21 +292,6 @@ export default async function handler(req: any, res: any) {
         },
       });
     }
-
-    // Authenticate request before executing tool logic
-    const keyRow = await authenticate(req);
-    if (!keyRow) {
-      return res.status(401).json({
-        jsonrpc: '2.0',
-        id,
-        error: {
-          code: -32001,
-          message: 'Unauthorized: invalid or revoked API key',
-        },
-      });
-    }
-
-    const userId = keyRow.user_id;
 
     // Handle MCP tools/call
     if (method === 'tools/call') {

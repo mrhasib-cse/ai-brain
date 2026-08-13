@@ -30,6 +30,9 @@ export default defineConfig(() => {
           server.middlewares.use(async (req: any, res: any, next: any) => {
             const url = (req.url || '').split('?')[0];
 
+            if (url === '/.well-known/oauth-protected-resource' || url === '/api/.well-known/oauth-protected-resource') {
+              return handleApiRoute('/api/.well-known/oauth-protected-resource.ts', req, res);
+            }
             if (url === '/.well-known/oauth-authorization-server' || url === '/api/.well-known/oauth-authorization-server') {
               return handleApiRoute('/api/.well-known/oauth-authorization-server.ts', req, res);
             }
