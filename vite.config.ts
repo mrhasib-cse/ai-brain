@@ -31,10 +31,10 @@ export default defineConfig(() => {
             const url = (req.url || '').split('?')[0];
 
             if (url === '/.well-known/oauth-protected-resource' || url === '/api/.well-known/oauth-protected-resource') {
-              return handleApiRoute('/api/.well-known/oauth-protected-resource.ts', req, res);
+              return handleApiRoute('/api/well-known-oauth-protected-resource.ts', req, res);
             }
             if (url === '/.well-known/oauth-authorization-server' || url === '/api/.well-known/oauth-authorization-server') {
-              return handleApiRoute('/api/.well-known/oauth-authorization-server.ts', req, res);
+              return handleApiRoute('/api/well-known-oauth-authorization-server.ts', req, res);
             }
             if (url === '/api/oauth/register') {
               return handleApiRoute('/api/oauth/register.ts', req, res);
