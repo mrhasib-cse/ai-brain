@@ -24,7 +24,8 @@ export default async function handler(req: any, res: any) {
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    console.error(`[OAuth Register] Invalid method: ${req.method}`);
+    return res.status(405).json({ error: 'invalid_request', error_description: 'Method not allowed' });
   }
 
   try {
@@ -33,27 +34,66 @@ export default async function handler(req: any, res: any) {
       try {
         body = JSON.parse(body);
       } catch {
-        body = {};
+        // Keep raw string or empty object
+      }
+    } else if (Buffer.isBuffer(body)) {
+      try {
+        body = JSON.parse(body.toString('utf-8'));
+      } catch {
+        // Keep as is
       }
     }
 
     const redirectUris = Array.isArray(body?.redirect_uris) ? body.redirect_uris : [];
+    const clientName =
+      typeof body?.client_name === 'string' && body.client_name.trim()
+        ? body.client_name.trim()
+        : null;
+
     const clientId = crypto.randomUUID();
+    const issuedAt = Math.floor(Date.now() / 1000);
 
-    const { error } = await supabase
-      .from('oauth_clients')
-      .insert([{ client_id: clientId, redirect_uris: redirectUris }]);
-
-    if (error) {
-      return res.status(500).json({ error: error.message });
-    }
-
-    return res.status(200).json({
+    const insertPayload: Record<string, any> = {
       client_id: clientId,
       redirect_uris: redirectUris,
+    };
+
+    if (clientName) {
+      insertPayload.client_name = clientName;
+    }
+
+    const { error } = await supabase.from('oauth_clients').insert([insertPayload]);
+
+    if (error) {
+      console.error('[OAuth Register] Supabase insert failed. Error:', JSON.stringify(error, null, 2));
+      console.error('[OAuth Register] Raw incoming request body was:', req.body);
+      return res.status(500).json({
+        error: 'invalid_client_metadata',
+        error_description: error.message || 'Failed to insert client registration record',
+      });
+    }
+
+    const responsePayload: Record<string, any> = {
+      client_id: clientId,
+      client_id_issued_at: issuedAt,
+      redirect_uris: redirectUris,
+      grant_types: ['authorization_code'],
+      response_types: ['code'],
       token_endpoint_auth_method: 'none',
-    });
+    };
+
+    if (clientName) {
+      responsePayload.client_name = clientName;
+    }
+
+    return res.status(201).json(responsePayload);
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Internal server error' });
+    console.error('[OAuth Register] Caught exception during registration:', err);
+    console.error('[OAuth Register] Raw incoming request body was:', req.body);
+    return res.status(500).json({
+      error: 'server_error',
+      error_description: err?.message || 'Internal server error during client registration',
+    });
   }
 }
+
