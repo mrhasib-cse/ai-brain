@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { Sun, Moon, Brain, Sparkles, ChevronRight, Menu, X } from 'lucide-react';
+import { Sun, Moon, Brain, Sparkles, ChevronRight, Menu, X, LogOut, User as UserIcon, LayoutDashboard, Key } from 'lucide-react';
 
 export interface HeaderProps {
   onGetStartedClick?: () => void;
   onSignInClick?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onSignInClick }) => {
+export const Header: React.FC<HeaderProps> = () => {
   const [isDark, setIsDark] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const isDarkMode = document.documentElement.classList.contains('dark');
@@ -26,11 +30,16 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onSignInClick
     }
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/', { replace: true });
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-[var(--bg-main)]/80 border-b border-[var(--border)] transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Brand Logo */}
-        <a href="/" className="flex items-center gap-3 group">
+        <Link to="/" className="flex items-center gap-3 group">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6C5CE7] to-[#8F82FF] flex items-center justify-center text-white shadow-md shadow-[#6C5CE7]/30 group-hover:scale-105 transition-transform">
             <Brain className="w-5 h-5" />
           </div>
@@ -43,26 +52,31 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onSignInClick
               Cross-AI Memory OS
             </span>
           </div>
-        </a>
+        </Link>
 
         {/* Navigation Links (Desktop) */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[var(--text-secondary)]">
-          <a href="#features" className="hover:text-[var(--text-primary)] transition-colors">
-            Features
-          </a>
-          <a href="#how-it-works" className="hover:text-[var(--text-primary)] transition-colors">
+          <Link to="/" className="hover:text-[var(--text-primary)] transition-colors">
+            Home
+          </Link>
+          <a href="/#how-it-works" className="hover:text-[var(--text-primary)] transition-colors">
             How it Works
           </a>
-          <a href="#interactive-demo" className="hover:text-[var(--text-primary)] transition-colors flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#6C5CE7]" />
-            Live Memory Simulator
+          <a href="/#features" className="hover:text-[var(--text-primary)] transition-colors">
+            Features
           </a>
-          <a href="#integrations" className="hover:text-[var(--text-primary)] transition-colors">
-            Integrations
-          </a>
-          <a href="#security" className="hover:text-[var(--text-primary)] transition-colors">
-            Privacy & Encryption
-          </a>
+          {user && (
+            <>
+              <Link to="/dashboard" className="text-[#8F82FF] font-semibold hover:text-[var(--text-primary)] transition-colors flex items-center gap-1.5">
+                <LayoutDashboard className="w-3.5 h-3.5" />
+                Dashboard
+              </Link>
+              <Link to="/dashboard/connections" className="hover:text-[var(--text-primary)] transition-colors flex items-center gap-1.5">
+                <Key className="w-3.5 h-3.5 text-[#8F82FF]" />
+                API Keys
+              </Link>
+            </>
+          )}
         </nav>
 
         {/* Right CTA / Controls */}
@@ -76,14 +90,32 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onSignInClick
             {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
           </button>
 
-          {/* Placeholder Buttons */}
-          <Button variant="ghost" size="sm" onClick={onSignInClick}>
-            Sign In
-          </Button>
-          <Button variant="primary" size="sm" onClick={onGetStartedClick}>
-            Get Started
-            <ChevronRight className="w-4 h-4" />
-          </Button>
+          {user ? (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)]">
+                <UserIcon className="w-3.5 h-3.5 text-[#8F82FF]" />
+                <span className="max-w-[140px] truncate">{user.email}</span>
+              </div>
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-rose-400 hover:text-rose-300">
+                <LogOut className="w-4 h-4 mr-1" />
+                Sign Out
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button variant="primary" size="sm">
+                  Get Started
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile menu button */}
@@ -108,21 +140,47 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onSignInClick
       {isMobileMenuOpen && (
         <div className="sm:hidden border-b border-[var(--border)] bg-[var(--bg-main)] px-4 pt-2 pb-6 space-y-3">
           <nav className="flex flex-col gap-2 text-sm font-medium text-[var(--text-secondary)]">
-            <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="py-2 hover:text-[var(--text-primary)]">Features</a>
-            <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="py-2 hover:text-[var(--text-primary)]">How it Works</a>
-            <a href="#interactive-demo" onClick={() => setIsMobileMenuOpen(false)} className="py-2 hover:text-[var(--text-primary)] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#6C5CE7]" />
-              Live Memory Simulator
-            </a>
-            <a href="#integrations" onClick={() => setIsMobileMenuOpen(false)} className="py-2 hover:text-[var(--text-primary)]">Integrations</a>
+            <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="py-2 hover:text-[var(--text-primary)]">Home</Link>
+            <a href="/#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="py-2 hover:text-[var(--text-primary)]">How it Works</a>
+            <a href="/#features" onClick={() => setIsMobileMenuOpen(false)} className="py-2 hover:text-[var(--text-primary)]">Features</a>
+            {user && (
+              <>
+                <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-[#8F82FF] font-semibold flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Link>
+                <Link to="/dashboard/connections" onClick={() => setIsMobileMenuOpen(false)} className="py-2 hover:text-[var(--text-primary)] flex items-center gap-2">
+                  <Key className="w-4 h-4 text-[#8F82FF]" />
+                  API Keys & Connections
+                </Link>
+              </>
+            )}
           </nav>
           <div className="pt-3 border-t border-[var(--border)] flex flex-col gap-2">
-            <Button variant="secondary" className="w-full justify-center" onClick={onSignInClick}>
-              Sign In
-            </Button>
-            <Button variant="primary" className="w-full justify-center" onClick={onGetStartedClick}>
-              Get Started
-            </Button>
+            {user ? (
+              <>
+                <div className="text-xs font-mono text-[var(--text-muted)] px-1 py-1 truncate">
+                  Logged in as {user.email}
+                </div>
+                <Button variant="secondary" className="w-full justify-center text-rose-400" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button variant="secondary" className="w-full justify-center">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button variant="primary" className="w-full justify-center">
+                    Get Started
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
