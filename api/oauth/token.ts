@@ -15,11 +15,9 @@ const supabaseServiceKey =
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 function generateApiKey(): string {
-  const array = new Uint8Array(24);
-  crypto.getRandomValues(array);
-  const randomHex = Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('');
+  const randomBytes = crypto.randomBytes(24).toString('hex');
   const uuid = crypto.randomUUID().replace(/-/g, '');
-  return `mlk_${uuid}${randomHex}`;
+  return `mlk_${uuid}${randomBytes}`;
 }
 
 function hashKey(rawKey: string): string {
