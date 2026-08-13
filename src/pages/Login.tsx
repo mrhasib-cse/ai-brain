@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -9,6 +9,9 @@ import { Brain, Key, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
 export const Login: React.FC = () => {
   const { signIn, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const redirectTo = searchParams.get('redirect') || searchParams.get('returnTo');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,9 +21,9 @@ export const Login: React.FC = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      navigate('/dashboard', { replace: true });
+      navigate(redirectTo || '/dashboard', { replace: true });
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, redirectTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +35,7 @@ export const Login: React.FC = () => {
       if (signInError) {
         setError(signInError.message);
       } else {
-        navigate('/dashboard', { replace: true });
+        navigate(redirectTo || '/dashboard', { replace: true });
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred during sign in.');

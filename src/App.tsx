@@ -8,6 +8,7 @@ import { Signup } from '@/pages/Signup';
 import { Dashboard } from '@/pages/Dashboard';
 import { ProjectDetail } from '@/pages/ProjectDetail';
 import { Connections } from '@/pages/Connections';
+import { OAuthAuthorize } from '@/pages/OAuthAuthorize';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/oauth/authorize" element={<OAuthAuthorize />} />
             <Route 
               path="/dashboard" 
               element={

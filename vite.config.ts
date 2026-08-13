@@ -11,24 +11,45 @@ export default defineConfig(() => {
       {
         name: 'mcp-api-middleware',
         configureServer(server) {
-          server.middlewares.use('/api/mcp', async (req: any, res: any) => {
+          const handleApiRoute = async (modulePath: string, req: any, res: any) => {
             const buffers: Uint8Array[] = [];
             for await (const chunk of req) {
               buffers.push(chunk);
             }
             const rawBody = Buffer.concat(buffers).toString('utf-8');
+            req.body = rawBody;
             try {
-              req.body = rawBody ? JSON.parse(rawBody) : {};
-            } catch {
-              req.body = {};
-            }
-            try {
-              const { default: handler } = await server.ssrLoadModule('/api/mcp.ts');
+              const { default: handler } = await server.ssrLoadModule(modulePath);
               await handler(req, res);
             } catch (err: any) {
               res.statusCode = 500;
               res.end(JSON.stringify({ error: err.message }));
             }
+          };
+
+          server.middlewares.use(async (req: any, res: any, next: any) => {
+            const url = (req.url || '').split('?')[0];
+
+            if (url === '/.well-known/oauth-authorization-server' || url === '/api/.well-known/oauth-authorization-server') {
+              return handleApiRoute('/api/.well-known/oauth-authorization-server.ts', req, res);
+            }
+            if (url === '/api/oauth/register') {
+              return handleApiRoute('/api/oauth/register.ts', req, res);
+            }
+            if (url === '/api/oauth/authorize') {
+              return handleApiRoute('/api/oauth/authorize.ts', req, res);
+            }
+            if (url === '/api/oauth/create-code') {
+              return handleApiRoute('/api/oauth/create-code.ts', req, res);
+            }
+            if (url === '/api/oauth/token') {
+              return handleApiRoute('/api/oauth/token.ts', req, res);
+            }
+            if (url === '/api/mcp') {
+              return handleApiRoute('/api/mcp.ts', req, res);
+            }
+
+            next();
           });
         },
       },

@@ -67,6 +67,26 @@ CREATE TABLE IF NOT EXISTS public.access_logs (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- OAuth Clients table (for OAuth 2.0 PKCE dynamic registration)
+CREATE TABLE IF NOT EXISTS public.oauth_clients (
+  client_id TEXT PRIMARY KEY,
+  redirect_uris TEXT[] NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- OAuth Authorization Codes table (for OAuth 2.0 PKCE)
+CREATE TABLE IF NOT EXISTS public.oauth_codes (
+  code TEXT PRIMARY KEY,
+  client_id TEXT NOT NULL,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  redirect_uri TEXT NOT NULL,
+  code_challenge TEXT NOT NULL,
+  code_challenge_method TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  used BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
 
 -- ==========================================
 -- 3. INDEXES
@@ -99,6 +119,8 @@ ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.memories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.api_keys ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.access_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.oauth_clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.oauth_codes ENABLE ROW LEVEL SECURITY;
 
 -- Projects RLS Policies
 CREATE POLICY "Users can manage their own projects"
