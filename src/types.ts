@@ -26,8 +26,15 @@ export interface Memory {
   source_ai?: string | null;
   importance_score: number;
   is_archived: boolean;
+  superseded_by?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface CreateMemoryResult {
+  wasDuplicate: boolean;
+  mergedInto?: string;
+  memory: Memory;
 }
 
 export interface ApiKey {

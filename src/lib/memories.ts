@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { Memory } from '@/types';
+import { Memory, CreateMemoryResult } from '@/types';
 
 export async function getMemories(projectId: string): Promise<Memory[]> {
   const { data, error } = await supabase
@@ -21,12 +21,76 @@ export async function createMemory(
   type: string,
   content: string,
   tags: string[]
-): Promise<Memory> {
+): Promise<CreateMemoryResult> {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) {
     throw new Error('User must be logged in to create a memory.');
   }
 
+  const trimmedContent = content.trim();
+  const cleanedTags = tags.map((t) => t.trim()).filter(Boolean);
+
+  // 1. Check for near-duplicate memory using pg_trgm similarity via find_similar_memory RPC
+  let matchedMemoryId: string | null = null;
+  try {
+    const { data: rpcData, error: rpcError } = await supabase.rpc('find_similar_memory', {
+      p_project_id: projectId,
+      p_user_id: userData.user.id,
+      p_content: trimmedContent,
+      p_threshold: 0.6,
+    });
+
+    if (!rpcError && Array.isArray(rpcData) && rpcData.length > 0 && rpcData[0]?.id) {
+      matchedMemoryId = rpcData[0].id;
+    }
+  } catch (rpcErr) {
+    console.warn('find_similar_memory RPC query failed or not installed yet:', rpcErr);
+  }
+
+  // 2. If a similar memory exists (> 0.6 similarity), archive matched row and insert new active row
+  if (matchedMemoryId) {
+    // Insert the new active memory row
+    const { data: newRow, error: insertError } = await supabase
+      .from('memories')
+      .insert([
+        {
+          user_id: userData.user.id,
+          project_id: projectId,
+          type,
+          content: trimmedContent,
+          tags: cleanedTags,
+          source_ai: 'manual',
+          is_archived: false,
+        },
+      ])
+      .select()
+      .single();
+
+    if (insertError) {
+      throw new Error(insertError.message);
+    }
+
+    // Archive the matched existing memory as superseded by the new active row
+    const { error: archiveError } = await supabase
+      .from('memories')
+      .update({
+        is_archived: true,
+        superseded_by: newRow.id,
+      })
+      .eq('id', matchedMemoryId);
+
+    if (archiveError) {
+      console.warn('Failed to archive superseded memory:', archiveError);
+    }
+
+    return {
+      wasDuplicate: true,
+      mergedInto: newRow.id,
+      memory: newRow as Memory,
+    };
+  }
+
+  // 3. No duplicate found: insert new active memory row
   const { data, error } = await supabase
     .from('memories')
     .insert([
@@ -34,8 +98,8 @@ export async function createMemory(
         user_id: userData.user.id,
         project_id: projectId,
         type,
-        content: content.trim(),
-        tags: tags.map((t) => t.trim()).filter(Boolean),
+        content: trimmedContent,
+        tags: cleanedTags,
         source_ai: 'manual',
       },
     ])
@@ -46,7 +110,10 @@ export async function createMemory(
     throw new Error(error.message);
   }
 
-  return data as Memory;
+  return {
+    wasDuplicate: false,
+    memory: data as Memory,
+  };
 }
 
 export async function updateMemory(

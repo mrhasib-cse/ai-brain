@@ -25,7 +25,8 @@ import {
   Activity,
   AlertCircle,
   Brain,
-  Search
+  Search,
+  Sparkles
 } from 'lucide-react';
 
 const MEMORY_TYPE_OPTIONS: { value: MemoryType; label: string; badgeColor: 'indigo' | 'violet' | 'emerald' | 'amber' | 'rose' | 'gray' }[] = [
@@ -44,6 +45,16 @@ export const ProjectDetail: React.FC = () => {
   const [memories, setMemories] = useState<Memory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Auto-dismiss toast after 6 seconds
+  useEffect(() => {
+    if (!toastMessage) return;
+    const timer = setTimeout(() => {
+      setToastMessage(null);
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [toastMessage]);
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -155,13 +166,22 @@ export const ProjectDetail: React.FC = () => {
           prev.map((m) => (m.id === updated.id ? updated : m))
         );
       } else {
-        const created = await createMemory(
+        const result = await createMemory(
           projectId,
           typeInput,
           contentInput,
           parsedTags
         );
-        setMemories((prev) => [created, ...prev]);
+
+        if (result.wasDuplicate) {
+          setToastMessage(
+            'This looked similar to an existing memory — updated it instead of creating a duplicate.'
+          );
+          const refreshed = await getMemories(projectId);
+          setMemories(refreshed);
+        } else {
+          setMemories((prev) => [result.memory, ...prev]);
+        }
       }
       setIsModalOpen(false);
     } catch (err: any) {
@@ -251,6 +271,25 @@ export const ProjectDetail: React.FC = () => {
           </Button>
         </div>
       </div>
+
+      {/* Toast / Deduplication Notification Banner */}
+      {toastMessage && (
+        <div className="p-4 rounded-xl bg-[#6C5CE7]/15 border border-[#6C5CE7]/40 text-[#A29BFE] text-sm flex items-center justify-between gap-3 shadow-lg shadow-[#6C5CE7]/10 animate-fade-in">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-[#6C5CE7]/20 flex items-center justify-center shrink-0 text-[#8F82FF]">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <span className="font-medium text-[var(--text-primary)]">{toastMessage}</span>
+          </div>
+          <button
+            onClick={() => setToastMessage(null)}
+            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors p-1 rounded-lg cursor-pointer"
+            title="Dismiss notification"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Error Alert */}
       {error && (

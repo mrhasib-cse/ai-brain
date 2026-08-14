@@ -1,8 +1,9 @@
 -- ==========================================
 -- 1. EXTENSIONS
--- Enable pgvector for storing and querying AI embeddings
+-- Enable vector for embeddings and pg_trgm for fuzzy string similarity search
 -- ==========================================
 CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 
 -- ==========================================
@@ -40,6 +41,7 @@ CREATE TABLE IF NOT EXISTS public.memories (
   source_ai TEXT,
   importance_score INT DEFAULT 5,
   is_archived BOOLEAN DEFAULT false,
+  superseded_by UUID REFERENCES public.memories(id),
   -- Full-Text Search tsvector column (automatically generated & synced from content + tags)
   search_vector tsvector GENERATED ALWAYS AS (to_tsvector('english', coalesce(content, '') || ' ' || coalesce(array_to_string(tags, ' '), ''))) STORED,
   created_at TIMESTAMPTZ DEFAULT now(),
@@ -100,6 +102,10 @@ CREATE INDEX IF NOT EXISTS idx_memories_type ON public.memories(type);
 -- GIN index for fast full-text search
 CREATE INDEX IF NOT EXISTS idx_memories_search_vector
   ON public.memories USING GIN (search_vector);
+
+-- GIN trigram index for fast fuzzy matching & deduplication
+CREATE INDEX IF NOT EXISTS idx_memories_content_trgm
+  ON public.memories USING GIN (content gin_trgm_ops);
 
 -- Vector similarity index using IVFFlat (Cosine Distance)
 -- Note: IVFFlat indexes perform best after table populated with sample rows (e.g., >100 rows).
@@ -176,3 +182,26 @@ CREATE TRIGGER trigger_set_memories_updated_at
   BEFORE UPDATE ON public.memories
   FOR EACH ROW
   EXECUTE FUNCTION public.set_updated_at();
+
+
+-- ==========================================
+-- 6. SIMILARITY & DEDUPLICATION RPC
+-- ==========================================
+
+-- Function to find nearest similar memory within the same project for deduplication
+CREATE OR REPLACE FUNCTION public.find_similar_memory(
+  p_project_id uuid,
+  p_user_id uuid,
+  p_content text,
+  p_threshold float DEFAULT 0.6
+)
+RETURNS TABLE(id uuid, content text, similarity_score float) AS $$
+  SELECT id, content, similarity(content, p_content) AS similarity_score
+  FROM public.memories
+  WHERE project_id = p_project_id
+    AND user_id = p_user_id
+    AND is_archived = false
+    AND similarity(content, p_content) > p_threshold
+  ORDER BY similarity_score DESC
+  LIMIT 1;
+$$ LANGUAGE sql STABLE;
