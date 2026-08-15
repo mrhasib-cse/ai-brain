@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -15,12 +15,44 @@ import {
   ShieldCheck,
   MessageSquare,
   Vault,
-  Bot
+  Bot,
+  CheckCircle2,
+  X
 } from 'lucide-react';
 
 export const Landing: React.FC = () => {
+  const location = useLocation();
+  const [showDeletedBanner, setShowDeletedBanner] = React.useState(false);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('deleted') === 'true' || location.state?.accountDeleted) {
+      setShowDeletedBanner(true);
+    }
+  }, [location]);
+
   return (
     <div className="w-full space-y-24 sm:space-y-32 pb-24">
+      {/* Account Deletion Confirmation Toast / Banner */}
+      {showDeletedBanner && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
+          <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm flex items-center justify-between gap-3 shadow-lg shadow-emerald-950/20 animate-fade-in">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
+              <span className="font-medium text-[var(--text-primary)]">
+                Your account and all associated data have been permanently deleted.
+              </span>
+            </div>
+            <button
+              onClick={() => setShowDeletedBanner(false)}
+              className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors p-1 rounded-lg cursor-pointer"
+              title="Dismiss"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* 1. HERO SECTION */}
       <section className="relative pt-12 sm:pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

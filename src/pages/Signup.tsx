@@ -40,8 +40,8 @@ export const Signup: React.FC = () => {
       if (signUpError) {
         setError(signUpError.message);
       } else if (data.session) {
-        // Automatically logged in
-        navigate('/dashboard', { replace: true });
+        // Automatically logged in -> redirect to onboarding
+        navigate('/onboarding', { replace: true });
       } else {
         // Confirmation email sent
         setSuccessMsg('Account created successfully! Please check your email inbox to confirm your account before signing in.');

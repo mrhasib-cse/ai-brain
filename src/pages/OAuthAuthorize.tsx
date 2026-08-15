@@ -19,6 +19,33 @@ export const OAuthAuthorize: React.FC = () => {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [clientName, setClientName] = useState<string | null>(null);
+
+  // Fetch connecting OAuth client info (client_name)
+  useEffect(() => {
+    if (!clientId) return;
+
+    let isMounted = true;
+    const fetchClientInfo = async () => {
+      try {
+        const response = await fetch(`/api/oauth/client-info?client_id=${encodeURIComponent(clientId)}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (isMounted && data?.client_name) {
+            setClientName(data.client_name);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch OAuth client info:', err);
+      }
+    };
+
+    fetchClientInfo();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [clientId]);
 
   // Redirect unauthenticated user to login while preserving full query string
   useEffect(() => {
@@ -120,10 +147,11 @@ export const OAuthAuthorize: React.FC = () => {
             <Brain className="w-8 h-8" />
           </div>
           <h2 className="font-serif-display text-2xl font-bold text-[var(--text-primary)] mb-1">
-            Connect to Claude
+            {clientName ? `Connect to ${clientName}` : 'Connect to this app'}
           </h2>
           <p className="text-xs text-[var(--text-secondary)]">
-            Claude wants to connect to your <span className="text-[#8F82FF] font-semibold">AI Memory Layer</span> vault.
+            {clientName || 'This app'} wants to connect to your{' '}
+            <span className="text-[#8F82FF] font-semibold">AI Memory Layer</span> vault.
           </p>
         </div>
 

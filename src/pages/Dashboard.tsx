@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { getProjects, createProject, deleteProject } from '@/lib/projects';
+import { isNewUser } from '@/lib/onboarding';
 import { Project } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -51,7 +52,23 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchProjectsList();
-  }, []);
+
+    const checkFirstTimeUser = async () => {
+      if (sessionStorage.getItem('onboarding_dismissed')) {
+        return;
+      }
+      try {
+        const isNew = await isNewUser();
+        if (isNew) {
+          navigate('/onboarding', { replace: true });
+        }
+      } catch (err) {
+        console.error('Failed to check if first-time user:', err);
+      }
+    };
+
+    checkFirstTimeUser();
+  }, [navigate]);
 
   const handleOpenModal = () => {
     setNameInput('');

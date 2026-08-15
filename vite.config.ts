@@ -39,6 +39,9 @@ export default defineConfig(() => {
             if (url === '/api/oauth/register') {
               return handleApiRoute('/api/oauth/register.ts', req, res);
             }
+            if (url === '/api/oauth/client-info') {
+              return handleApiRoute('/api/oauth/client-info.ts', req, res);
+            }
             if (url === '/api/oauth/authorize') {
               return handleApiRoute('/api/oauth/authorize.ts', req, res);
             }
@@ -47,6 +50,9 @@ export default defineConfig(() => {
             }
             if (url === '/api/oauth/token') {
               return handleApiRoute('/api/oauth/token.ts', req, res);
+            }
+            if (url === '/api/account/delete') {
+              return handleApiRoute('/api/account/delete.ts', req, res);
             }
             if (url === '/api/mcp') {
               return handleApiRoute('/api/mcp.ts', req, res);

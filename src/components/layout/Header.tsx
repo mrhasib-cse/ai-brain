@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { Sun, Moon, Brain, Sparkles, ChevronRight, Menu, X, LogOut, User as UserIcon, LayoutDashboard, Key } from 'lucide-react';
+import { Sun, Moon, Brain, Sparkles, ChevronRight, Menu, X, LogOut, User as UserIcon, LayoutDashboard, Key, Settings as SettingsIcon } from 'lucide-react';
 
 export interface HeaderProps {
   onGetStartedClick?: () => void;
@@ -75,6 +75,10 @@ export const Header: React.FC<HeaderProps> = () => {
                 <Key className="w-3.5 h-3.5 text-[#8F82FF]" />
                 API Keys
               </Link>
+              <Link to="/dashboard/settings" className="hover:text-[var(--text-primary)] transition-colors flex items-center gap-1.5">
+                <SettingsIcon className="w-3.5 h-3.5 text-[#8F82FF]" />
+                Settings
+              </Link>
             </>
           )}
         </nav>
@@ -92,10 +96,14 @@ export const Header: React.FC<HeaderProps> = () => {
 
           {user ? (
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)]">
+              <Link
+                to="/dashboard/settings"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] hover:border-[#6C5CE7]/40 text-xs font-mono text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
+                title="Account Settings"
+              >
                 <UserIcon className="w-3.5 h-3.5 text-[#8F82FF]" />
                 <span className="max-w-[140px] truncate">{user.email}</span>
-              </div>
+              </Link>
               <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-rose-400 hover:text-rose-300">
                 <LogOut className="w-4 h-4 mr-1" />
                 Sign Out
@@ -152,6 +160,10 @@ export const Header: React.FC<HeaderProps> = () => {
                 <Link to="/dashboard/connections" onClick={() => setIsMobileMenuOpen(false)} className="py-2 hover:text-[var(--text-primary)] flex items-center gap-2">
                   <Key className="w-4 h-4 text-[#8F82FF]" />
                   API Keys & Connections
+                </Link>
+                <Link to="/dashboard/settings" onClick={() => setIsMobileMenuOpen(false)} className="py-2 hover:text-[var(--text-primary)] flex items-center gap-2">
+                  <SettingsIcon className="w-4 h-4 text-[#8F82FF]" />
+                  Settings & Data
                 </Link>
               </>
             )}

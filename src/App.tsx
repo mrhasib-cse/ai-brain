@@ -8,6 +8,8 @@ import { Signup } from '@/pages/Signup';
 import { Dashboard } from '@/pages/Dashboard';
 import { ProjectDetail } from '@/pages/ProjectDetail';
 import { Connections } from '@/pages/Connections';
+import { Settings } from '@/pages/Settings';
+import { Onboarding } from '@/pages/Onboarding';
 import { OAuthAuthorize } from '@/pages/OAuthAuthorize';
 
 export default function App() {
@@ -21,6 +23,14 @@ export default function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/oauth/authorize" element={<OAuthAuthorize />} />
             <Route 
+              path="/onboarding" 
+              element={
+                <ProtectedRoute>
+                  <Onboarding />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/dashboard" 
               element={
                 <ProtectedRoute>
@@ -33,6 +43,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Connections />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard/settings" 
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               } 
             />
